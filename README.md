@@ -1,7 +1,8 @@
 # BeeMoto Sales Tracker
 ## Project Overview
-This project is a web-based sales record system for a motorbike spares shop. It allows users to add sales records, view daily totals, and list daily sales. The system uses a SQLite database for data storage, Flask for the backend, and HTML/JavaScript with Tailwind CSS for the frontend.
+This project is a web-based sales record system for a motorbike spares shop. It allows users to add sales records, view daily totals, and list daily sales. The system uses a SQLite database for data storage, Flask for the backend, and HTML/JavaScript with Tailwind CSS for the frontend.It also includes user authentication features for enhanced security.
 ## Features
+- User authentication (signup, login, logout)
 - Add new sales records with item name, quantity, and price
 - Calculate and display daily sales totals
 - View itemized daily sales records
@@ -10,7 +11,9 @@ This project is a web-based sales record system for a motorbike spares shop. It 
 - Backend:
   - Python 3.x
   - Flask
+  - Flask-Login (for user authentication)
   - SQLite
+  - Werkzeug (for password hashing)
 - Frontend:
   - HTML5
   - JavaScript
@@ -34,23 +37,36 @@ pip install -r requirements.txt
 ``` console
 cd backend
 ```
-5. Run the Flask application:
+5. Initialize the database:
+``` console
+python init_db.py
+```
+6. Run the Flask application:
 ``` console
 python app.py
 ```
-6. Open a web browser and go to `http://localhost:5000` to access the application.
+7. Open a web browser and go to `http://localhost:5000` to access the application.
 ## Usage
-1. **Adding a Sale:**
+1. **Sign Up / Login:**
+- New users can sign up for an account on the signup page.
+- Existing users can log in on the login page.
+2. **Adding a Sale:**
 - Fill in the item name, quantity, and price in the "Add Sale" section.
 - Click "Add Sale" to record the transaction.
-2. **Viewing Daily Total:**
+3. **Viewing Daily Total:**
 - Select a date in the "Get Daily Total" section.
 - Click "Get Total" to see the total sales for that day.
-3. **Viewing Daily Sales:**
+4. **Viewing Daily Sales:**
 - Select a date in the "View Daily Sales" section.
 - Click "View Sales" to see a list of all sales for that day.
+5. **Logout:**
+- Click the "Logout" button in the top-right corner to end your session.
 ## Database
-The system uses an SQLite database (`sales_record.db`) to store sales records. The database is automatically created when you run the application for the first time.
+The system uses an SQLite database (`sales_record.db`) to store sales records and user information. The database is automatically created when you run the initialization script.
+## Security
+- User passwords are hashed using Werkzeug's security features before being stored in the database.
+- Flask-Login is used to manage user sessions securely.
+- All main features require user authentication to access.
 ## Customization
 - To change the background image, replace the file at `frontend/static/images/rohan-JtyFzLCihTg-unsplash.jpg` with your desired image.
 - Modify the Tailwind classes in `index.html` to adjust the styling.

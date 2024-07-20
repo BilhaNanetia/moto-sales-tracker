@@ -1,33 +1,78 @@
-# app.py
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import datetime
 import os
 
-
 template_dir = os.path.abspath('../frontend/templates')
 static_dir = os.path.abspath('../frontend/static')
 
-
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+app.config['SECRET_KEY'] = 'your_secret_key_here'  # Change this to a random secret key
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+class User(UserMixin):
+    def __init__(self, id, username, password):
+        self.id = id
+        self.username = username
+        self.password = password
+
+def get_db_connection():
+    db_path = os.path.abspath('../sales_record.db')  # Use an absolute path for the database
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@login_manager.user_loader
+def load_user(user_id):
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+    conn.close()
+    if user:
+        return User(user['id'], user['username'], user['password'])
+    return None
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+        if user:
+            flash('Username already exists')
+            return redirect(url_for('signup'))
+        hashed_password = generate_password_hash(password)
+        conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, hashed_password))
+        conn.commit()
+        conn.close()
+        flash('Account created successfully')
+        return redirect(url_for('login'))
+    return render_template('signup.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+        conn.close()
+        if user and check_password_hash(user['password'], password):
+            user_obj = User(user['id'], user['username'], user['password'])
+            login_user(user_obj)
+            return redirect(url_for('index'))
+        flash('Invalid username or password')
+    return render_template('login.html')
 
 class SalesRecord:
-    def __init__(self, db_name='sales_record.db'):
+    def __init__(self, db_name=os.path.abspath('../sales_record.db')):
         self.conn = sqlite3.connect(db_name, check_same_thread=False)
         self.cursor = self.conn.cursor()
-        self.create_table()
-
-    def create_table(self):
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS sales (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                date TEXT,
-                item TEXT,
-                quantity INTEGER,
-                price REAL
-            )
-        ''')
-        self.conn.commit()
 
     def add_sale(self, item, quantity, price):
         date = datetime.date.today().isoformat()
@@ -57,6 +102,7 @@ class SalesRecord:
 record = SalesRecord()
 
 @app.route('/')
+@login_required
 def index():
     return render_template('index.html')
 
@@ -77,6 +123,12 @@ def get_daily_sales():
     date = request.args.get('date')
     sales = record.get_daily_sales(date)
     return jsonify({'sales': sales})
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
