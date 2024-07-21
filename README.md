@@ -1,11 +1,12 @@
 # BeeMoto Sales Tracker
 ## Project Overview
-This project is a web-based sales record system for a motorbike spares shop. It allows users to add sales records, view daily totals, and list daily sales. The system uses a SQLite database for data storage, Flask for the backend, and HTML/JavaScript with Tailwind CSS for the frontend.It also includes user authentication features for enhanced security.
+This project is a web-based sales record system for a motorbike spares shop. It allows users to add sales records, view daily totals,list daily sales and delete sales records. The system uses a SQLite database for data storage, Flask for the backend, and HTML/JavaScript with Tailwind CSS for the frontend.It also includes user authentication features for enhanced security.
 ## Features
 - User authentication (signup, login, logout)
 - Add new sales records with item name, quantity, and price
 - Calculate and display daily sales totals
 - View itemized daily sales records
+- Delete sales records
 - Currency display in Kenya Shillings (KES)
 ## Technologies Used
 - Backend:
@@ -37,15 +38,12 @@ pip install -r requirements.txt
 ``` console
 cd backend
 ```
-5. Initialize the database:
-``` console
-python init_db.py
-```
-6. Run the Flask application:
+- Since the database is already setup,
+5. Run the Flask application:
 ``` console
 python app.py
 ```
-7. Open a web browser and go to `http://localhost:5000` to access the application.
+6. Open a web browser and go to `http://localhost:5000` to access the application.
 ## Usage
 1. **Sign Up / Login:**
 - New users can sign up for an account on the signup page.
@@ -59,7 +57,9 @@ python app.py
 4. **Viewing Daily Sales:**
 - Select a date in the "View Daily Sales" section.
 - Click "View Sales" to see a list of all sales for that day.
-5. **Logout:**
+5. **Deleting a sale:**
+- Click "Delete" to delete a sale in the "View Daily Sales" section.
+6. **Logout:**
 - Click the "Logout" button in the top-right corner to end your session.
 ## Database
 The system uses an SQLite database (`sales_record.db`) to store sales records and user information. The database is automatically created when you run the initialization script.
@@ -82,7 +82,7 @@ Contributions to this project are welcome. Please follow these steps:
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
 ## Acknowledgments
-- Background image by Rohan on Unsplash
+- Unsplash for background images
 - Tailwind CSS for the styling framework
 - Flask community for the excellent web framework
 ## Contact
